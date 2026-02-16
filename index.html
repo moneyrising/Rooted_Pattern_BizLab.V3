@@ -1,467 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rising Rose · Pattern Lab – Where You Think You Are vs Where You Actually Are</title>
-  <style>
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #faf7f0 0%, #fff9ed 100%);
-      color:#222; line-height:1.6; min-height:100vh;
-    }
-    .rr-shell { max-width:1000px; margin:0 auto; padding:20px; }
-    
-    header.rr-header {
-      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
-      padding:16px 20px; background:#fff; border:2px solid #f0b429; border-radius:12px;
-      margin-bottom:24px; box-shadow:0 2px 8px rgba(240,180,41,0.1);
-    }
-    .rr-header-left { font-weight:700; font-size:18px; color:#7a5b00; letter-spacing:-0.3px; }
-    .rr-header-center { font-weight:600; font-size:15px; text-align:center; flex:1; margin:0 12px; color:#654c0f; }
-    .rr-header-right { font-size:13px; padding:6px 14px; border-radius:999px; border:2px solid #f0b429;
-                        color:#7a5b00; background:#fffef6; white-space:nowrap; font-weight:600; }
-
-    .rr-layout { display:grid; grid-template-columns:minmax(0,2.8fr) minmax(240px,1fr); gap:20px; }
-    @media (max-width:900px) { .rr-layout { grid-template-columns:1fr; } }
-
-    .rr-main {
-      background:#ffffff; border-radius:16px; border:1px solid #e8dcc0;
-      padding:24px 28px 32px; box-shadow:0 4px 16px rgba(0,0,0,0.04);
-    }
-    .rr-sidebar {
-      background:#fffdf7; border-radius:16px; border:1px solid #eee0c0;
-      padding:20px; font-size:14px; box-shadow:0 2px 8px rgba(0,0,0,0.03);
-    }
-    .rr-sidebar h3 { font-size:15px; font-weight:700; margin-bottom:8px; color:#7a5b00; margin-top:24px; }
-    .rr-sidebar h3:first-child { margin-top:0; }
-    .rr-sidebar p { color:#555; line-height:1.5; }
-    .rr-sidebar small { display:block; margin-top:6px; color:#777; font-size:13px; }
-
-    .rr-progress { 
-      width:100%; height:10px; background:#f5ede0; border-radius:999px; 
-      overflow:hidden; margin-bottom:24px; border:1px solid #e8dcc0;
-    }
-    .rr-progress-fill { 
-      height:100%; width:0%; 
-      background:linear-gradient(90deg,#f0b429,#e69b00); 
-      transition:width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .rr-step { display:none; animation:fadeIn 0.3s ease-in; }
-    .rr-step.active { display:block; }
-    @keyframes fadeIn { from {opacity:0; transform:translateY(8px);} to {opacity:1; transform:translateY(0);} }
-
-    .rr-step-title { font-size:24px; font-weight:700; margin-bottom:12px; color:#654c0f; letter-spacing:-0.5px; }
-    .rr-step-sub { font-size:15.5px; color:#555; margin-bottom:24px; line-height:1.6; }
-
-    .rr-info-box {
-      background:#fff9e7; border-left:4px solid #f0b429; border-radius:8px;
-      padding:14px 16px; font-size:14px; margin:16px 0; color:#654c0f; line-height:1.5;
-    }
-    .rr-banner {
-      display:none; background:#fff4ec; border-left:4px solid #f0863a; color:#7a3a07;
-      padding:14px 16px; border-radius:8px; margin-bottom:20px; font-size:14px; line-height:1.5;
-    }
-    .rr-banner strong { display:block; margin-bottom:6px; font-size:15px; }
-
-    .rr-field-group { margin-bottom:28px; }
-    .rr-field-label { font-size:15.5px; font-weight:600; margin-bottom:8px; display:block; color:#333; }
-    .rr-help { font-size:13.5px; color:#666; margin-top:8px; font-style:italic; }
-
-    .rr-checkbox-grid {
-      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:10px; margin-top:10px;
-    }
-    .rr-check-item {
-      background:#faf5e6; border:1px solid #e8dcc0; border-radius:8px; padding:12px 14px;
-      font-size:14px; display:flex; align-items:flex-start; gap:10px;
-      transition:all 0.2s ease; cursor:pointer;
-    }
-    .rr-check-item:hover { background:#fff9ed; border-color:#f0b429; }
-    .rr-check-item input[type=checkbox] { 
-      margin-top:3px; cursor:pointer; width:18px; height:18px;
-      accent-color:#f0b429;
-    }
-    .rr-check-item label { cursor:pointer; flex:1; }
-
-    textarea, select, input[type=text] {
-      width:100%; padding:12px 14px; border:2px solid #e8dcc0; border-radius:8px;
-      font-size:14.5px; font-family:inherit; background:#fffef8; 
-      resize:vertical; transition:border-color 0.2s ease;
-    }
-    textarea { min-height:90px; }
-    textarea:focus, select:focus, input[type=text]:focus {
-      outline:none; border-color:#f0b429; background:#fff;
-    }
-
-    .rr-pattern-card {
-      background:linear-gradient(135deg, #fffdf7 0%, #fff9ed 100%);
-      border:2px solid #f0b429; border-radius:12px;
-      padding:20px; margin:20px 0; box-shadow:0 4px 12px rgba(240,180,41,0.12);
-    }
-    .rr-pattern-title { 
-      font-weight:700; color:#7a5b00; margin-bottom:8px; 
-      font-size:22px; letter-spacing:-0.3px;
-    }
-
-    .rr-scenes { margin:24px 0; }
-    .rr-scenes h4 { 
-      font-size:16px; color:#654c0f; margin-bottom:12px; 
-      font-weight:600; letter-spacing:-0.2px;
-    }
-    .rr-scenes ul { padding-left:24px; }
-    .rr-scenes li { margin-bottom:10px; font-size:14.5px; color:#444; line-height:1.5; }
-
-    .rr-mirror-grid {
-      display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0;
-    }
-    @media (max-width:700px) { .rr-mirror-grid { grid-template-columns:1fr; } }
-    .rr-mirror-block {
-      background:#fffef6; border:1px solid #e8dcc0; border-radius:10px;
-      padding:14px 16px; font-size:14px; line-height:1.6;
-    }
-    .rr-mirror-block strong { color:#7a5b00; display:block; margin-bottom:6px; font-size:14.5px; }
-
-    .rr-toggle-group { margin:20px 0; display:flex; gap:16px; flex-wrap:wrap; align-items:center; }
-    .rr-toggle-label { font-weight:600; font-size:15px; }
-    .rr-toggle-group label { 
-      display:flex; align-items:center; gap:6px; cursor:pointer; 
-      padding:8px 14px; border-radius:8px; border:2px solid #e8dcc0;
-      background:#faf5e6; transition:all 0.2s ease; font-size:14px;
-    }
-    .rr-toggle-group label:hover { border-color:#f0b429; background:#fff9ed; }
-    .rr-toggle-group input[type=radio] { 
-      accent-color:#f0b429; width:18px; height:18px; cursor:pointer;
-    }
-
-    .rr-nav { display:flex; justify-content:space-between; margin-top:32px; gap:12px; flex-wrap:wrap; }
-    .rr-btn {
-      border:none; border-radius:999px; padding:12px 24px; font-size:15px; 
-      cursor:pointer; font-weight:600; transition:all 0.2s ease;
-      display:inline-flex; align-items:center; gap:8px;
-    }
-    .rr-btn-primary { 
-      background:#f0b429; color:white; 
-      box-shadow:0 2px 8px rgba(240,180,41,0.3);
-    }
-    .rr-btn-primary:hover { background:#e39b04; transform:translateY(-1px); box-shadow:0 4px 12px rgba(240,180,41,0.4); }
-    .rr-btn-primary:active { transform:translateY(0); }
-    .rr-btn-secondary { background:#f2ead7; color:#654c0f; border:2px solid #e8dcc0; }
-    .rr-btn-secondary:hover { background:#e9ddc4; border-color:#d6b75c; }
-    .rr-btn:disabled { opacity:0.5; cursor:not-allowed; }
-
-    .rr-summary-block {
-      background:#fffdf7; border:1px solid #eee0c0; border-radius:10px;
-      padding:16px 18px; margin-bottom:16px; font-size:14px; line-height:1.6;
-    }
-    .rr-summary-block h4 { font-size:16px; color:#7a5b00; margin-bottom:12px; font-weight:600; }
-    .rr-summary-block ul { padding-left:20px; margin-top:8px; }
-    .rr-summary-block li { margin-bottom:8px; color:#444; }
-
-    @media (max-width:600px) {
-      .rr-header { flex-direction:column; text-align:center; }
-      .rr-header-center { margin:8px 0; }
-      .rr-step-title { font-size:20px; }
-      .rr-checkbox-grid { grid-template-columns:1fr; }
-    }
-  </style>
-</head>
-<body>
-
-<div class="rr-shell">
-
-  <header class="rr-header">
-    <div class="rr-header-left">🌹 Rising Rose</div>
-    <div class="rr-header-center">Where You Think You Are vs Where You Actually Are</div>
-    <div class="rr-header-right">Rooted • Stage 1</div>
-  </header>
-
-  <div class="rr-layout">
-
-    <main class="rr-main">
-
-      <div class="rr-progress">
-        <div id="progressFill" class="rr-progress-fill"></div>
-      </div>
-
-      <!-- STEP 1: Intro + Capacity Check -->
-      <section class="rr-step active" data-step="1">
-        <h2 class="rr-step-title">Welcome to the Rooted Pattern Lab</h2>
-        <p class="rr-step-sub">
-          This is not a test or a judgment. It's a mirror — a chance to see what your actual behavior has been doing over the past 6–12 months without needing to "fix" anything right now.
-        </p>
-
-        <div class="rr-info-box">
-          💡 You can pause, skip questions, come back tomorrow, or only answer three items. Whatever feels doable today is the right amount.
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">How resourced do you feel for reflection right now?</label>
-          <select id="capacity">
-            <option value="">— Select your current capacity —</option>
-            <option value="good">Good capacity today</option>
-            <option value="some">Some capacity, but stretched</option>
-            <option value="low">Low capacity / feel flat</option>
-          </select>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">When you think about looking honestly at your business efforts, what happens in your body?</label>
-          <select id="activation">
-            <option value="">— Notice what you feel —</option>
-            <option value="calm">Mostly calm / neutral</option>
-            <option value="mixed">Some tension or mixed feelings</option>
-            <option value="high">Very activated, shut down, or numb</option>
-          </select>
-        </div>
-
-        <div id="pauseBanner" class="rr-banner">
-          <strong>⚠️ Today might not be the day — and that is information, not failure.</strong>
-          If even reading these questions feels heavy, it's completely okay to close the tab and return when your nervous system has more bandwidth.
-        </div>
-
-        <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" disabled>← Back</button>
-          <button class="rr-btn rr-btn-primary" id="startBtn">Start Exploration →</button>
-        </div>
-      </section>
-
-      <!-- STEP 2: Behavior Checkboxes -->
-      <section class="rr-step" data-step="2">
-        <h2 class="rr-step-title">What have you actually been doing?</h2>
-        <p class="rr-step-sub">
-          Check every statement that has been roughly true in the last 6–12 months. This is an inventory — not a grade.
-        </p>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">📦 Creation & Offers</label>
-          <div class="rr-checkbox-grid">
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="A1">
-              <span>I've created multiple offers/products (journal, workbook, course, event series, podcast episodes, etc.) but few/none sell consistently</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="A2">
-              <span>I keep starting new content/projects before finishing or selling the previous one</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="B1">
-              <span>I spent a long time polishing one main offer / website / brand before ever making real sales</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="C1">
-              <span>I've run at least one beta, pilot, or small paid group and people got real results</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="D1">
-              <span>I've been "getting ready" / planning / journaling / learning for months with almost no public offers</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="D2">
-              <span>I had early wins / sales / clarity… then completely stopped making offers or reaching out</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">💰 Traction & Money</label>
-          <div class="rr-checkbox-grid">
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="A3">
-              <span>Fewer than 8–10 total sales across everything I've created</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="B2">
-              <span>Some sales early on, but now almost no new buyers despite outreach</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="C2">
-              <span>I have 3–10+ clear client success stories, but can't turn them into steady leads/sales</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="D3">
-              <span>I have almost no money coming in from the business (or it stopped after an initial burst)</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">📢 Outreach & Audience</label>
-          <div class="rr-checkbox-grid">
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="A4">
-              <span>I post content on several platforms but get very little engagement or leads</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="B3">
-              <span>I DM/email lots of people (not a narrow list) and mostly get polite non-responses</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="C3">
-              <span>People say they love my work / free content, but rarely buy</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="D4">
-              <span>I avoid reaching out / posting offers because it feels too vulnerable or "not ready"</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">💭 Emotional / Inner Experience</label>
-          <div class="rr-checkbox-grid">
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="A5">
-              <span>I feel scattered / have too many ideas and can't pick one</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="B4">
-              <span>I keep thinking "if more people just saw this offer…"</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="C4">
-              <span>I secretly worry I'm "bad at marketing" even though clients get results</span>
-            </label>
-            <label class="rr-check-item">
-              <input type="checkbox" name="b" value="D5">
-              <span>I tell myself I need more clarity / confidence / alignment before I can act</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="rr-info-box">
-          ℹ️ Checking almost nothing is also useful data. It usually points toward freeze / preparation mode.
-        </div>
-
-        <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" id="backToStep1">← Back</button>
-          <button class="rr-btn rr-btn-primary" id="showPattern">Show My Pattern →</button>
-        </div>
-      </section>
-
-      <!-- STEP 3: Pattern Reveal -->
-      <section class="rr-step" data-step="3">
-        <h2 class="rr-step-title">One Likely Pattern Lens</h2>
-        <p class="rr-step-sub">
-          This is not who you <em>are</em>. It's what your <em>behavior</em> has been doing lately.
-        </p>
-
-        <div id="patternCard" class="rr-pattern-card"></div>
-
-        <div class="rr-scenes">
-          <h4>🎬 If a camera followed you the last 30–90 days, what would it film?</h4>
-          <ul id="movieScenes"></ul>
-        </div>
-
-        <div id="mirrorContainer"></div>
-
-        <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" id="backToStep2">← Back</button>
-          <button class="rr-btn rr-btn-primary" id="continueToAudience">Continue to Audience →</button>
-        </div>
-      </section>
-
-      <!-- STEP 4: Audience Deep Dive -->
-      <section class="rr-step" data-step="4">
-        <h2 class="rr-step-title">Let's Zoom Into Their Movie</h2>
-        <p class="rr-step-sub">
-          Now picture the people you most want to help. We're not locking anything in — just sketching one clear "character" for now.
-        </p>
-
-        <div class="rr-toggle-group">
-          <span class="rr-toggle-label">Main type right now:</span>
-          <label>
-            <input type="radio" name="biztype" value="B2C" checked>
-            Individuals (B2C)
-          </label>
-          <label>
-            <input type="radio" name="biztype" value="B2B">
-            Companies / Teams (B2B)
-          </label>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">What's a typical day like for them right now?</label>
-          <textarea id="day" placeholder="A typical Tuesday looks like…"></textarea>
-          <div id="dayNudge" class="rr-help"></div>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">What friction or pain are they carrying?</label>
-          <textarea id="pain" placeholder="The thing that keeps them up at night or drains them is…"></textarea>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">What moment makes them most open to help?</label>
-          <textarea id="moment" placeholder="The moment they'd be most receptive is when…"></textarea>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">What are they afraid will happen if nothing changes?</label>
-          <textarea id="fear" placeholder="If nothing changes, they're worried they'll…"></textarea>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">90 days from now, what do they wish was true?</label>
-          <textarea id="wish" placeholder="In three months they want to be able to say…"></textarea>
-        </div>
-
-        <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" id="backToStep3">← Back</button>
-          <button class="rr-btn rr-btn-primary" id="shapeStarter">Shape a Starter Sentence →</button>
-        </div>
-      </section>
-
-      <!-- STEP 5: Segment Sentence + Next Questions -->
-      <section class="rr-step" data-step="5">
-        <h2 class="rr-step-title">Starter Who + Problem Sentence</h2>
-        <p class="rr-step-sub">
-          Try completing this <strong>draft</strong> sentence. You can (and probably will) change it later.
-        </p>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">I help…</label>
-          <textarea id="segment" rows="3" placeholder="I help [very specific group] who are dealing with [specific problem] get [specific outcome]."></textarea>
-          <div id="segmentNudge" class="rr-help"></div>
-        </div>
-
-        <div class="rr-field-group">
-          <label class="rr-field-label">Good questions to explore next (market research mode)</label>
-          <div id="nextQuestions" class="rr-summary-block"></div>
-        </div>
-
-        <div class="rr-info-box">
-          🎯 This lab stops here — at awareness, language, and better research questions.<br><br>
-          It does <strong>not</strong> pick your final offer, pricing, delivery container, or funnel.<br>
-          Those come after you talk to real people and collect clearer data.
-        </div>
-
-        <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" id="backToStep4">← Back</button>
-          <button class="rr-btn rr-btn-primary" id="startFresh">Start Fresh</button>
-        </div>
-      </section>
-
-    </main>
-
-    <aside class="rr-sidebar">
-      <h3>📍 You Are Here</h3>
-      <p>Rooted • Stage 1<br><small>Awareness & Language</small></p>
-
-      <h3>⏸️ Pacing Reminder</h3>
-      <p>You can answer three checkboxes and stop. Or come back tomorrow. Or skip half the questions. All of it is valid data.</p>
-
-      <h3>🛡️ If This Feels Hard</h3>
-      <p>Difficulty answering usually means you're close to something important — or your nervous system is protecting you. Either way, permission to pause.</p>
-
-      <h3>💾 Your Progress</h3>
-      <p><small>This tool doesn't save data. Consider taking notes as you go if you want to preserve your insights.</small></p>
-    </aside>
-
-  </div>
-</div>
-
 <script>
 // State & Navigation
 let step = 1;
@@ -526,7 +62,7 @@ const patternLibrary = {
       signals: "Outputs are being produced; demand is not.",
       not: "A branding problem, a posting frequency problem, or a laziness problem.",
       is: "A segmentation + clear-problem-definition problem first.",
-      believe: ""If I make more things / more beautiful things, eventually something will land."",
+      believe: "\"If I make more things / more beautiful things, eventually something will land.\"",
       reality: "Energy and attention are spread thin → no single group gets enough clarity to say yes."
     }
   },
@@ -535,17 +71,17 @@ const patternLibrary = {
     scoreKeys: ["B1","B2","B3","B4"],
     movie: [
       "You're on your fifth version of the offer page / sales video / pricing.",
-      "You send thoughtful DMs or emails to lots of people → mostly polite "looks interesting!" replies.",
+      "You send thoughtful DMs or emails to lots of people → mostly polite \"looks interesting!\" replies.",
       "You attend networking events / lives and collect business cards, but few turn into clients.",
-      "You keep hearing "this sounds great" but almost never "I'll take it".",
+      "You keep hearing \"this sounds great\" but almost never \"I'll take it\".",
       "You quietly wonder if the market just doesn't get it yet."
     ],
     mirror: {
       doing: "Polishing one structured offer / brand for a long time before real traction.",
       signals: "Solution built before narrow segment + problem were chosen.",
-      not: "A "no market exists" problem or a "visibility" problem.",
+      not: "A \"no market exists\" problem or a \"visibility\" problem.",
       is: "A who-is-this-for-first + where-can-I-actually-reach-them problem.",
-      believe: ""If more of the right people just saw this…"",
+      believe: "\"If more of the right people just saw this…\"",
       reality: "Most people don't instantly recognize themselves → so they scroll past."
     }
   },
@@ -554,18 +90,18 @@ const patternLibrary = {
     scoreKeys: ["C1","C2","C3","C4"],
     movie: [
       "You deliver powerful 1:1 sessions / small groups → clients have breakthroughs.",
-      "You avoid writing headlines / offer copy because "nothing sounds right".",
+      "You avoid writing headlines / offer copy because \"nothing sounds right\".",
       "You post beautiful inspiration / behind-the-scenes… but rarely name concrete outcomes.",
-      "You get lovely testimonials and DMs saying "this is so needed"… but few purchases.",
-      "You secretly worry you're "bad at marketing" even though people get results."
+      "You get lovely testimonials and DMs saying \"this is so needed\"… but few purchases.",
+      "You secretly worry you're \"bad at marketing\" even though people get results."
     ],
     mirror: {
       doing: "Helped real people get results, but can't turn wins into repeatable sales.",
       signals: "Proof exists; clear, narrow, repeatable messaging & GTM motion do not (yet).",
-      not: "A "start completely over" problem or "your offer doesn't work" problem.",
+      not: "A \"start completely over\" problem or \"your offer doesn't work\" problem.",
       is: "A positioning + client-language messaging + simple GTM motion problem.",
-      believe: ""I'm just not good at selling / marketing myself."",
-      reality: "You have evidence it works — you just haven't translated it into words one specific group hears as "this is for me"."
+      believe: "\"I'm just not good at selling / marketing myself.\"",
+      reality: "You have evidence it works — you just haven't translated it into words one specific group hears as \"this is for me\"."
     }
   },
   D: {
@@ -574,16 +110,16 @@ const patternLibrary = {
     movie: [
       "You spend hours journaling, mind-mapping, watching trainings… but rarely make offers.",
       "You rewrite your niche / ideal client / messaging doc for the 7th time.",
-      "You tell trusted friends "I know what I need to do"… then don't do it.",
+      "You tell trusted friends \"I know what I need to do\"… then don't do it.",
       "Early wins or clarity happened… then fear / shame / overwhelm shut everything down.",
       "The thought of posting an offer or sending a pitch makes your chest tighten."
     ],
     mirror: {
       doing: "Planning / preparing / consuming / freezing instead of shipping offers or reaching out.",
       signals: "Nervous system protection (freeze) is currently louder than strategy.",
-      not: "A discipline problem, a "you don't want it enough" problem, or permanent failure.",
+      not: "A discipline problem, a \"you don't want it enough\" problem, or permanent failure.",
       is: "An avoidance / safety / small-step problem — often after earlier over-effort or hurt.",
-      believe: ""I need more clarity / alignment / confidence before I can act safely."",
+      believe: "\"I need more clarity / alignment / confidence before I can act safely.\"",
       reality: "Clarity usually comes <em>after</em> tiny, safe experiments — not before."
     }
   }
@@ -614,7 +150,9 @@ function renderPattern() {
     <p style="margin:8px 0 12px;color:#666;font-size:14px;">Most likely pattern based on what you checked</p>
   `;
 
-  document.getElementById("movieScenes").innerHTML = data.movie.map(s => `<li>${s}</li>`).join("");
+  document.getElementById("movieScenes").innerHTML = data.movie
+    .map(s => `<li>${s}</li>`)
+    .join("");
 
   const m = data.mirror;
   document.getElementById("mirrorContainer").innerHTML = `
@@ -649,16 +187,16 @@ const nextQuestionsLibrary = {
   A: [
     "What are 2–3 real situations where people in this group are already asking for help (Reddit, FB groups, forums, colleagues)?",
     "Which of my existing ideas/products am I willing to pause so I can focus on one clear problem?",
-    "Who is the most reachable version of this group right now (not the dream client — the accessible one)?"
+    "Who is the mostthe real, raw, close-at-hand connection eager to be seen version of this group right now?"
   ],
   B: [
     "Which specific roles / teams / companies do I already have the easiest access to?",
-    "What business outcome (not methodology) matters most to them right now?",
+    "What’s the main thing they’re trying to make happen at work right now",
     "Where do these people already gather, and how could I listen before pitching?"
   ],
   C: [
     "What exact words did my best clients use when describing their problem before working with me?",
-    "Which of my past wins came from the narrowest, most specific audience segment?",
+    "Which of my past wins came from the narrowest, most specific group of people I'm aiming at?",
     "What's the simplest version of my offer I could describe in one sentence to that exact group?"
   ],
   D: [
@@ -681,6 +219,3 @@ function renderSegmentAndQuestions() {
   `;
 }
 </script>
-
-</body>
-</html>
