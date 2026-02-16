@@ -223,7 +223,7 @@
 
         <div class="rr-nav">
           <button class="rr-btn rr-btn-secondary" disabled>← Back</button>
-          <button class="rr-btn rr-btn-primary" onclick="goTo(2)">Start Exploration →</button>
+          <button class="rr-btn rr-btn-primary" id="startBtn">Start Exploration →</button>
         </div>
       </section>
 
@@ -335,8 +335,8 @@
         </div>
 
         <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" onclick="goTo(1)">← Back</button>
-          <button class="rr-btn rr-btn-primary" onclick="goTo(3)">Show My Pattern →</button>
+          <button class="rr-btn rr-btn-secondary" id="backToStep1">← Back</button>
+          <button class="rr-btn rr-btn-primary" id="showPattern">Show My Pattern →</button>
         </div>
       </section>
 
@@ -357,8 +357,8 @@
         <div id="mirrorContainer"></div>
 
         <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" onclick="goTo(2)">← Back</button>
-          <button class="rr-btn rr-btn-primary" onclick="goTo(4)">Continue to Audience →</button>
+          <button class="rr-btn rr-btn-secondary" id="backToStep2">← Back</button>
+          <button class="rr-btn rr-btn-primary" id="continueToAudience">Continue to Audience →</button>
         </div>
       </section>
 
@@ -408,8 +408,8 @@
         </div>
 
         <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" onclick="goTo(3)">← Back</button>
-          <button class="rr-btn rr-btn-primary" onclick="goTo(5)">Shape a Starter Sentence →</button>
+          <button class="rr-btn rr-btn-secondary" id="backToStep3">← Back</button>
+          <button class="rr-btn rr-btn-primary" id="shapeStarter">Shape a Starter Sentence →</button>
         </div>
       </section>
 
@@ -438,8 +438,8 @@
         </div>
 
         <div class="rr-nav">
-          <button class="rr-btn rr-btn-secondary" onclick="goTo(4)">← Back</button>
-          <button class="rr-btn rr-btn-primary" onclick="goTo(1)">Start Fresh</button>
+          <button class="rr-btn rr-btn-secondary" id="backToStep4">← Back</button>
+          <button class="rr-btn rr-btn-primary" id="startFresh">Start Fresh</button>
         </div>
       </section>
 
@@ -481,6 +481,23 @@ function goTo(n) {
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
+// Event Listeners for Navigation
+document.getElementById("startBtn").addEventListener("click", () => goTo(2));
+document.getElementById("backToStep1").addEventListener("click", () => goTo(1));
+document.getElementById("showPattern").addEventListener("click", () => goTo(3));
+document.getElementById("backToStep2").addEventListener("click", () => goTo(2));
+document.getElementById("continueToAudience").addEventListener("click", () => goTo(4));
+document.getElementById("backToStep3").addEventListener("click", () => goTo(3));
+document.getElementById("shapeStarter").addEventListener("click", () => goTo(5));
+document.getElementById("backToStep4").addEventListener("click", () => goTo(4));
+document.getElementById("startFresh").addEventListener("click", () => {
+  // Reset form
+  document.querySelectorAll("input[type=checkbox]").forEach(cb => cb.checked = false);
+  document.querySelectorAll("textarea").forEach(ta => ta.value = "");
+  document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
+  goTo(1);
+});
+
 // Readiness Banner
 const cap = document.getElementById("capacity");
 const act = document.getElementById("activation");
@@ -489,8 +506,8 @@ const banner = document.getElementById("pauseBanner");
 function checkReadiness() {
   banner.style.display = (cap.value === "low" || act.value === "high") ? "block" : "none";
 }
-cap?.addEventListener("change", checkReadiness);
-act?.addEventListener("change", checkReadiness);
+cap.addEventListener("change", checkReadiness);
+act.addEventListener("change", checkReadiness);
 
 // Pattern Library
 const patternLibrary = {
